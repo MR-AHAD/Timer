@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Target Calculation</title>
+
+
+<script src="protected_1762796758735.js"></script>
+	
+	
+
+<!-- হেডার -->
+<div class="header-box">
+  <div class="header-title">TARGET CALCULATION</div>
+  <button id="menuBtn">&lt;=&gt;</button>
+</div>
+
+<!-- তারিখ -->
+<div class="date-box">
+  <div>Start Day: <span id="startDate">--</span></div>
+  <div>Exit Day: <span id="endDate">--</span></div>
+</div>
+
+<!-- মেইন কনটেন্ট (মাঝখানে টাইমার + বাটন) -->
+<div class="main-content">
+  <div class="timer-box">
+    <div class="timer" id="timer">00:00:00</div>
+  </div>
+
+  <div id="buttons">
+    <button id="successBtn">✅ Success Day</button>
+    <button id="failBtn">❌ Failed Day</button>
+  </div>
+</div>
+
+<!-- মেনু -->
+<div id="menu">
+  <button onclick="showHistory()">View List<span>❌</span></button>
+  <button onclick="resetTimer()">Restart Timar<span>❌</span></button>
+  <button onclick="showNotice()">Notice<span>❌</span></button>
+  <button onclick="window.open('https://www.facebook.com/404.BLACK.ARMY','_blank')">ADMIN<span>❌</span></button>
+</div>
+
+<script src="protected_1762796869634.js"></script>
+
+
+<script>
+let countdown, endTime, startTime;
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+function startTimer(days){
+  startTime = new Date();
+  endTime = new Date(startTime.getTime()+days*24*60*60*1000);
+  localStorage.setItem("startTime",startTime);
+  localStorage.setItem("endTime",endTime);
+  document.getElementById("startDate").innerText = startTime.toLocaleDateString();
+  document.getElementById("endDate").innerText = endTime.toLocaleDateString();
+  updateTimer();
+}
+
+function updateTimer(){
+  clearInterval(countdown);
+  countdown = setInterval(()=>{
+    const now = new Date();
+    const distance = endTime-now;
+    if(distance<=0){
+      clearInterval(countdown);
+      document.getElementById("timer").innerText="🎉 সময় শেষ!";
+      showPopup("🎉 Congratulations! Timer Completed!");
+      return;
+    }
+    const d=Math.floor(distance/(1000*60*60*24));
+    const h=Math.floor((distance/(1000*60*60))%24);
+    const m=Math.floor((distance/(1000*60))%60);
+    const s=Math.floor((distance/1000)%60);
+    document.getElementById("timer").innerText=`${d}d ${h}h ${m}m ${s}s`;
+  },1000);
+}
+
+function showPopup(msg){
+  const pop=document.getElementById("popup");
+  pop.innerText=msg;
+  pop.style.display="block";
+  setTimeout(()=>pop.style.display="none",3000);
+}
+
+document.getElementById("menuBtn").onclick=()=>{
+  const menu=document.getElementById("menu");
+  menu.style.display = menu.style.display==="block"?"none":"block";
+};
+
+document.getElementById("successBtn").onclick=()=>recordDay("Success");
+document.getElementById("failBtn").onclick=()=>recordDay("Failed");
+
+function recordDay(type){
+  const today=new Date().toLocaleDateString();
+  if(!history.some(e=>e.date===today)){
+    history.push({date:today,status:type});
+    localStorage.setItem("history",JSON.stringify(history));
+    showPopup(type==="Success"?"✅ Success Recorded":"❌ Failed Recorded");
+  }
+  document.getElementById("successBtn").style.display="none";
+  document.getElementById("failBtn").style.display="none";
+}
+
+function showHistory(){
+  let content=`<button id='closeHistory'>❌</button><h3>View List</h3>`;
+  if(history.length===0){ content+="<p>কোনো তথ্য নেই!</p>"; }
+  else{ history.forEach(e=>{ content+=`<div class='list-item'>${e.date} ➤ ${e.status==="Success"?"✅":"❌"}</div>`; }); }
+  const popup=document.getElementById("historyPopup");
+  popup.innerHTML=content;
+  popup.style.display="block";
+  document.getElementById("closeHistory").onclick=()=>popup.style.display="none";
+}
+
+function showNotice(){ showPopup("📢 নোটিশ: নিয়মিত টাইমার অনুসরণ করুন! এবং আপনার লোক্ষে পৌছান"); }
+
+function resetTimer(){
+  const days=prompt("কয়দিনের জন্য টাইমার চালু করতে চান?");
+  if(days && !isNaN(days)){ startTimer(parseInt(days)); showPopup("⏳ নতুন টাইমার শুরু হয়েছে!"); }
+}
+
+window.onload=()=>{
+  const s=localStorage.getItem("startTime");
+  const e=localStorage.getItem("endTime");
+  if(s && e){
+    startTime=new Date(s); endTime=new Date(e);
+    document.getElementById("startDate").innerText=startTime.toLocaleDateString();
+    document.getElementById("endDate").innerText=endTime.toLocaleDateString();
+    updateTimer();
+  }else{ resetTimer(); }
+};
+</script>
+
+</body>
+</html>
