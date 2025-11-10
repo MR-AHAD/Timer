@@ -45,4 +45,4 @@ If you have **cool text snippets**, **fonts**, or **text styles**, feel free to 
 
 ---
 
-Made with ❤️ by **[Your Name]**
+Made with ❤️ by **[Ahad Chowdhury]**
